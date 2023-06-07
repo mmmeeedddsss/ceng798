@@ -4,9 +4,9 @@ import math
 from qiskit.visualization import plot_histogram
 from qiskit import transpile
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit import IBMQ
+from qiskit_ibm_provider import IBMProvider
 
-provider = IBMQ.load_account()
+provider = IBMProvider()
 
 
 def list_to_chunks(l, chunk_size):
@@ -90,13 +90,11 @@ def measurement_s(qc):
     qc.compose(meas, inplace=True, qubits=s)
 
 
-def execute(qc, num_shots=1000):
-    backend = provider.backend.ibmq_qasm_simulator
+def execute_on_sim(qc, num_shots=1000):
+    backend = provider.get_backend('ibmq_qasm_simulator')
     result = backend.run(transpile(qc, backend), shots=num_shots).result()
     return result.get_counts(qc)
 
-
-counts = execute(qc)
 
 inp_w = "11001000"
 inp_p = "1000"
@@ -138,7 +136,7 @@ for repetition in range(num_repetitions):  # num_repetitions
 
 measurement_s(qc)
 
-counts = execute(qc)
+counts = execute_on_sim(qc)
 plot_histogram(counts)
 print(qc.depth())
 
